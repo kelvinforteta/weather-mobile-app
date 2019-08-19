@@ -27,14 +27,14 @@ class _HomeScreenState extends State<HomeScreen> {
               isSearch ? Container() : searchIcon(),
             ],
           ),
-          body: ListView(
+          body: Column(
             children: <Widget>[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   SizedBox(
-                    height: 20,
+                    height: 15,
                   ),
                   Text(
                     'Warri, NG',
@@ -56,8 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     highlightColor: Colors.white,
                   ),*/
                   Text(
-                    '${getWeatherIcon(600)}',
+                    '${getWeatherIcon(200)}',
                     style: TextStyle(fontSize: 120),
+                  ),
+                  SizedBox(
+                    height: 10,
                   ),
                   Text(
                     'Partly Cloudy',
@@ -65,6 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                       fontSize: 18.0,
                     ),
+                  ),
+                  SizedBox(
+                    height: 5,
                   ),
                   Text(
                     '26°',
@@ -76,26 +82,114 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  CardWidget(
-                    // temperature: 800,
-                    description: '( 260 )',
-                    label: 'Wind',
-                  ),
-                  CardWidget(
-                    // temperature: 17,
-                    description: '58%',
-                    label: 'Humidity',
-                  ),
-                  CardWidget(
-                    // temperature: 800,
-                    description: '1013 hpa',
-                    label: 'Pressure',
-                  ),
-                ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    CardWidget(
+                      icon: 'assets/images/wind.png',
+                      description: '1.5 mph',
+                      label: 'Wind',
+                    ),
+                    CardWidget(
+                      icon: 'assets/images/humidity.png',
+                      description: '58%',
+                      label: 'Humidity',
+                    ),
+                    CardWidget(
+                      icon: 'assets/images/pressure.png',
+                      description: '1013 hpa',
+                      label: 'Pressure',
+                    ),
+                  ],
+                ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    '16 Days Forecast',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: ClampingScrollPhysics(),
+                    children: <Widget>[
+                      MoreWeatherBroadcast(
+                        day: 'Wed',
+                        temperature: 800,
+                        degree: 30,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Thu',
+                        temperature: 300,
+                        degree: 21,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Fri',
+                        temperature: 600,
+                        degree: 15,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sat',
+                        temperature: 700,
+                        degree: 14,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                      MoreWeatherBroadcast(
+                        day: 'Sun',
+                        temperature: 100,
+                        degree: -5,
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -162,13 +256,47 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class CardWidget extends StatelessWidget {
+class MoreWeatherBroadcast extends StatelessWidget {
+  final day;
   final temperature;
+  final degree;
+
+  MoreWeatherBroadcast(
+      {@required this.temperature, @required this.day, @required this.degree});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+              child: Text(
+            day,
+            style: TextStyle(color: Colors.white, fontSize: 15),
+          )),
+          Expanded(
+              child: Text(
+            '${getWeatherIcon(temperature)}',
+            style: TextStyle(fontSize: 20),
+          )),
+          Expanded(
+              child: Text(
+            '$degree°',
+            style: TextStyle(color: Colors.white, fontSize: 15),
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+class CardWidget extends StatelessWidget {
+  final icon;
   final label;
   final description;
 
-  CardWidget(
-      {@required this.label, this.temperature, @required this.description});
+  CardWidget({@required this.label, this.icon, @required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -187,12 +315,9 @@ class CardWidget extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: <Widget>[
-                Text(
-                  //'${getWeatherIcon(temperature)}',
-                  '',
-                  style: TextStyle(
-                    fontSize: 30.0,
-                  ),
+                Image.asset(
+                  icon,
+                  height: 40,
                 ),
                 Text(
                   '$label',
