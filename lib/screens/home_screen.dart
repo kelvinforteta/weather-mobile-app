@@ -9,9 +9,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isSearch = false;
   String cityName;
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
+    return isLoading ? loadingScreen() : buildStackWidget();
+  }
+
+  Stack buildStackWidget() {
     return Stack(
       children: <Widget>[
         WeatherBackground(),
@@ -19,7 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            title: isSearch ? searchBar() : Container(),
+            centerTitle: true,
+            title: isSearch ? searchBar() : Text('Today'),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             leading: isSearch ? null : refreshWeatherIcon(),
@@ -28,25 +34,29 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           body: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text(
-                    'Warri, NG',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25.0,
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 5,
                     ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  /*Shimmer.fromColors(
+                    Text(
+                      'Warri, NG',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 25.0,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    /*Shimmer.fromColors(
                     direction: ShimmerDirection.ltr,
                     child: Text(
                       '${getWeatherIcon(600)}',
@@ -55,145 +65,127 @@ class _HomeScreenState extends State<HomeScreen> {
                     baseColor: Colors.yellow,
                     highlightColor: Colors.white,
                   ),*/
-                  Text(
-                    '${getWeatherIcon(200)}',
-                    style: TextStyle(fontSize: 120),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    'Partly Cloudy',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
+                    Text(
+                      '${getWeatherIcon(200)}',
+                      style: TextStyle(fontSize: 100),
                     ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    '26°',
-                    style: TextStyle(
-                      color: Colors.white,
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 60.0,
+                    SizedBox(
+                      height: 5,
                     ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    CardWidget(
-                      icon: 'assets/images/wind.png',
-                      description: '1.5 mph',
-                      label: 'Wind',
+                    Text(
+                      'Partly Cloudy',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                      ),
                     ),
-                    CardWidget(
-                      icon: 'assets/images/humidity.png',
-                      description: '58%',
-                      label: 'Humidity',
+                    SizedBox(
+                      height: 5,
                     ),
-                    CardWidget(
-                      icon: 'assets/images/pressure.png',
-                      description: '1013 hpa',
-                      label: 'Pressure',
+                    Text(
+                      '26°',
+                      style: TextStyle(
+                        color: Colors.white,
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 50.0,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    '16 Days Forecast',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      CardWidget(
+                        icon: 'assets/images/wind.png',
+                        description: '1.5 mph',
+                        label: 'Wind',
+                      ),
+                      CardWidget(
+                        icon: 'assets/images/humidity.png',
+                        description: '58%',
+                        label: 'Humidity',
+                      ),
+                      CardWidget(
+                        icon: 'assets/images/pressure.png',
+                        description: '1013 hpa',
+                        label: 'Pressure',
+                      ),
+                    ],
                   ),
                 ),
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    physics: ClampingScrollPhysics(),
+                  padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      MoreWeatherBroadcast(
-                        day: 'Wed',
-                        temperature: 800,
-                        degree: 30,
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          '5 Days Forecast',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700),
+                        ),
                       ),
-                      MoreWeatherBroadcast(
-                        day: 'Thu',
-                        temperature: 300,
-                        degree: 21,
+                      SizedBox(
+                        height: 10,
                       ),
-                      MoreWeatherBroadcast(
-                        day: 'Fri',
-                        temperature: 600,
-                        degree: 15,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sat',
-                        temperature: 700,
-                        degree: 14,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
-                      MoreWeatherBroadcast(
-                        day: 'Sun',
-                        temperature: 100,
-                        degree: -5,
-                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          ForecastWidget(
+                            day: 'Wed',
+                            temperature: 300,
+                            degree: 25,
+                          ),
+                          ForecastWidget(
+                            day: 'Thu',
+                            temperature: 500,
+                            degree: 27,
+                          ),
+                          ForecastWidget(
+                            day: 'Fri',
+                            temperature: 100,
+                            degree: -5,
+                          ),
+                          ForecastWidget(
+                            day: 'Sat',
+                            temperature: 200,
+                            degree: 15,
+                          ),
+                          ForecastWidget(
+                            day: 'Sun',
+                            temperature: 800,
+                            degree: 35,
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Container loadingScreen() {
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Text('Loading...'),
+      ),
     );
   }
 
@@ -256,35 +248,46 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class MoreWeatherBroadcast extends StatelessWidget {
+class ForecastWidget extends StatelessWidget {
   final day;
   final temperature;
   final degree;
 
-  MoreWeatherBroadcast(
+  ForecastWidget(
       {@required this.temperature, @required this.day, @required this.degree});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 10),
+    return Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Expanded(
-              child: Text(
+          Text(
             day,
-            style: TextStyle(color: Colors.white, fontSize: 15),
-          )),
-          Expanded(
-              child: Text(
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15.0,
+            ),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
             '${getWeatherIcon(temperature)}',
-            style: TextStyle(fontSize: 20),
-          )),
-          Expanded(
-              child: Text(
+            style: TextStyle(
+              fontSize: 20.0,
+            ),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
             '$degree°',
-            style: TextStyle(color: Colors.white, fontSize: 15),
-          )),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15.0,
+            ),
+          ),
         ],
       ),
     );
