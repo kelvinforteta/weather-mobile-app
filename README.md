@@ -1,4 +1,4 @@
-# weather_app
+# Starter Weather App
 
 A new Flutter application.
 
