@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:weather_app/services/weather.dart';
+import 'package:weather_app/components/forecast.dart';
+import 'package:weather_app/components/weather_emoji.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,28 +11,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isSearch = false;
   String cityName;
-  bool isLoading = true;
-  Timer timer;
-
-  @override
-  void initState() {
-    super.initState();
-    timer = Timer(Duration(seconds: 5), () {
-      setState(() {
-        isLoading = false;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return isLoading ? loadingScreen() : buildStackWidget();
+    return buildStackWidget();
   }
 
   Stack buildStackWidget() {
@@ -76,17 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(
                       height: 10,
                     ),
-                    /*Shimmer.fromColors(
-                    direction: ShimmerDirection.ltr,
-                    child: Text(
-                      '${getWeatherIcon(600)}',
-                      style: TextStyle(fontSize: 120),
-                    ),
-                    baseColor: Colors.yellow,
-                    highlightColor: Colors.white,
-                  ),*/
                     Text(
-                      '${getWeatherIcon(200)}',
+                      '${getWeatherEmoji(200)}',
                       style: TextStyle(fontSize: 100),
                     ),
                     SizedBox(
@@ -274,52 +246,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onChanged: (value) {
           cityName = value.toLowerCase().trim();
         });
-  }
-}
-
-class ForecastWidget extends StatelessWidget {
-  final day;
-  final temperature;
-  final degree;
-
-  ForecastWidget(
-      {@required this.temperature, @required this.day, @required this.degree});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            day,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15.0,
-            ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            '${getWeatherIcon(temperature)}',
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            '$degree°',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15.0,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
