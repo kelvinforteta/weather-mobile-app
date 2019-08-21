@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/services/weather.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,6 +13,23 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isSearch = false;
   String cityName;
   bool isLoading = true;
+  Timer timer;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer(Duration(seconds: 5), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,11 +200,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Container loadingScreen() {
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Text('Loading...'),
+  Scaffold loadingScreen() {
+    return Scaffold(
+      body: Container(
+        color: Colors.white,
+        child: Center(
+          child: Shimmer.fromColors(
+            baseColor: Colors.purple[900],
+            highlightColor: Colors.pink[700],
+            child: Text(
+              'Loading...',
+              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
       ),
     );
   }
