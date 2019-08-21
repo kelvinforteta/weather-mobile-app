@@ -94,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       horizontal: 10.0, vertical: 5.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       CardWidget(
                         icon: 'assets/images/wind.png',
@@ -187,6 +188,47 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Scaffold errorScreen() {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Container(
+        margin: EdgeInsets.all(20),
+        width: double.infinity,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Image.asset(
+              'assets/images/thumb_down.gif',
+              width: 120,
+            ),
+            Text(
+              'Sorry, an error occurred, please try again.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            RaisedButton(
+              color: Colors.blue,
+              onPressed: () {},
+              child: const Text(
+                'Retry',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
