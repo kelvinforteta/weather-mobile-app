@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/components/forecast.dart';
+import 'package:weather_app/components/weather_background.dart';
 import 'package:weather_app/components/weather_emoji.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -297,31 +298,6 @@ class CardWidget extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class WeatherBackground extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: double.infinity,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.pink[700],
-            Colors.purple[900],
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        /*image: DecorationImage(
-          image: NetworkImage(
-              'https://cdn.pixabay.com/photo/2016/11/29/11/12/adult-1869119_960_720.jpg'),
-          fit: BoxFit.cover,
-        ),*/
       ),
     );
   }
