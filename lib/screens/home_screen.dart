@@ -248,7 +248,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             RaisedButton(
               color: Colors.blue,
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  isLoading = true;
+                  isError = false;
+                });
+                getWeatherUpdate();
+              },
               child: const Text(
                 'Retry',
                 style: TextStyle(
@@ -271,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         onPressed: () {
           // refresh the location api
+          getWeatherUpdate();
         });
   }
 
