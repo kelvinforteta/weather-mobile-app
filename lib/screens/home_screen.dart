@@ -13,6 +13,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isSearch = false;
   String cityName;
+  final searchBarController = TextEditingController();
+  bool showClearIcon = false;
 
   @override
   Widget build(BuildContext context) {
@@ -259,6 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   TextField searchBar() {
     return TextField(
+        controller: searchBarController,
         style: TextStyle(color: Colors.white),
         autofocus: true,
         textInputAction: TextInputAction.search,
@@ -273,22 +276,41 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           hintText: 'Enter City Name',
           hintStyle: TextStyle(color: Colors.white),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.white,
-          ),
-          suffixIcon: IconButton(
+          prefixIcon: IconButton(
               icon: Icon(
-                Icons.close,
+                Icons.arrow_back,
                 color: Colors.white,
               ),
               onPressed: () {
                 isSearch = false;
                 setState(() {});
               }),
+          suffixIcon: showClearIcon
+              ? IconButton(
+                  icon: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    searchBarController.clear();
+                    setState(() {
+                      showClearIcon = false;
+                    });
+                  })
+              : null,
         ),
         onChanged: (value) {
           cityName = value.toLowerCase().trim();
+
+          if (cityName.isNotEmpty) {
+            setState(() {
+              showClearIcon = true;
+            });
+          } else {
+            setState(() {
+              showClearIcon = false;
+            });
+          }
         });
   }
 }
