@@ -1,9 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/components/card_widget.dart';
@@ -24,20 +20,13 @@ class _HomeScreenState extends State<HomeScreen> {
   String cityName;
   final searchBarController = TextEditingController();
   bool showClearIcon = false;
-  var weather;
   bool isLoading = true;
   bool isError = false;
 
   @override
-  void initState() {
-    super.initState();
-
-    getWeatherUpdate();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return isLoading ? screens() : buildStackWidget();
+    //return isLoading ? screens() : buildStackWidget();
+    return buildStackWidget();
   }
 
   Stack buildStackWidget() {
@@ -71,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 5,
                     ),
                     Text(
-                      '${weather['city']['name']}, ${weather['city']['country']}',
+                      'Warri, NG',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 25.0,
@@ -81,15 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 10,
                     ),
                     Text(
-                      '${getWeatherEmoji(weather['list'][0]['weather'][0]['id'])}',
+                      '${getWeatherEmoji(500)}',
                       style: TextStyle(fontSize: 100),
                     ),
                     SizedBox(
                       height: 5,
                     ),
                     Text(
-                      toBeginningOfSentenceCase(
-                          weather['list'][0]['weather'][0]['description']),
+                      toBeginningOfSentenceCase('Moderate rain'),
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,
@@ -99,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 5,
                     ),
                     Text(
-                      '${weather['list'][0]['main']['temp'].toInt()}°',
+                      '26°',
                       style: TextStyle(
                         color: Colors.white,
                         // fontWeight: FontWeight.bold,
@@ -120,20 +108,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       CardWidget(
                         icon: 'assets/images/wind.png',
-                        description:
-                            '${weather['list'][0]['wind']['speed']} m/s',
+                        description: '3.75 m/s',
                         label: 'Wind',
                       ),
                       CardWidget(
                         icon: 'assets/images/humidity.png',
-                        description:
-                            '${weather['list'][0]['main']['humidity'].toInt()}%',
+                        description: '86%',
                         label: 'Humidity',
                       ),
                       CardWidget(
                         icon: 'assets/images/pressure.png',
-                        description:
-                            '${weather['list'][0]['main']['pressure'].toInt()} hpa',
+                        description: '1013 hpa',
                         label: 'Pressure',
                       ),
                     ],
@@ -149,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Align(
                         alignment: Alignment.topLeft,
                         child: Text(
-                          '5 Day Forecast',
+                          '10 Day Forecast',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -162,21 +147,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: 15,
+                          itemCount: 10,
                           itemBuilder: (context, index) {
                             return Padding(
                               padding: EdgeInsets.only(right: 12.0),
                               child: ForecastWidget(
-                                date: convertTimestampToDay(
-                                    weather['list'][1]['dt_txt']),
-                                temperatureDay: weather['list'][1]['weather'][0]
-                                    ['id'],
-                                temperatureNight: weather['list'][1]['weather']
-                                    [0]['id'],
-                                degreeDay:
-                                    weather['list'][1]['main']['temp'].toInt(),
-                                degreeNight:
-                                    weather['list'][1]['main']['temp'].toInt(),
+                                date: 'Sun',
+                                temperatureDay: 300,
+                                temperatureNight: 400,
+                                degreeDay: 25,
+                                degreeNight: 27,
                               ),
                             );
                           },
@@ -242,7 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   isLoading = true;
                   isError = false;
                 });
-                getWeatherUpdate();
               },
               child: const Text(
                 'Retry',
@@ -266,7 +245,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         onPressed: () {
           // refresh the location api
-          getWeatherUpdate();
         });
   }
 
@@ -335,29 +313,6 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           }
         });
-  }
-
-  void getWeatherUpdate() async {
-    print('first part');
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
-    print('after');
-    // time to call the api
-    var response = await http.get(
-        '$openWeatherApiUrl?lat=${position.latitude}&lon=${position.longitude}&appid=$apiKey&units=metric');
-
-    if (response.statusCode == 200) {
-      print(response.body);
-      setState(() {
-        weather = jsonDecode(response.body);
-        isLoading = false;
-      });
-    } else {
-      // error page
-      setState(() {
-        isError = true;
-      });
-    }
   }
 
   screens() {
