@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Align(
                         alignment: Alignment.topLeft,
                         child: Text(
-                          '5 Days Forecast',
+                          '5 Day Forecast',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -158,41 +159,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(
                         height: 10,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          ForecastWidget(
-                            day: convertTimestampToDay(
-                                weather['list'][1]['dt_txt']),
-                            temperature: weather['list'][1]['weather'][0]['id'],
-                            degree: weather['list'][1]['main']['temp'].toInt(),
-                          ),
-                          ForecastWidget(
-                            day: convertTimestampToDay(
-                                weather['list'][2]['dt_txt']),
-                            temperature: weather['list'][2]['weather'][0]['id'],
-                            degree: weather['list'][2]['main']['temp'].toInt(),
-                          ),
-                          ForecastWidget(
-                            day: convertTimestampToDay(
-                                weather['list'][3]['dt_txt']),
-                            temperature: weather['list'][3]['weather'][0]['id'],
-                            degree: weather['list'][3]['main']['temp'].toInt(),
-                          ),
-                          ForecastWidget(
-                            day: convertTimestampToDay(
-                                weather['list'][4]['dt_txt']),
-                            temperature: weather['list'][4]['weather'][0]['id'],
-                            degree: weather['list'][4]['main']['temp'].toInt(),
-                          ),
-                          ForecastWidget(
-                            day: convertTimestampToDay(
-                                weather['list'][5]['dt_txt']),
-                            temperature: weather['list'][5]['weather'][0]['id'],
-                            degree: weather['list'][5]['main']['temp'].toInt(),
-                          ),
-                        ],
-                      )
+                      Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: 15,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.only(right: 12.0),
+                              child: ForecastWidget(
+                                date: convertTimestampToDay(
+                                    weather['list'][1]['dt_txt']),
+                                temperatureDay: weather['list'][1]['weather'][0]
+                                    ['id'],
+                                temperatureNight: weather['list'][1]['weather']
+                                    [0]['id'],
+                                degreeDay:
+                                    weather['list'][1]['main']['temp'].toInt(),
+                                degreeNight:
+                                    weather['list'][1]['main']['temp'].toInt(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -349,14 +338,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void getWeatherUpdate() async {
+    print('first part');
     Position position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.lowest);
-
+    print('after');
     // time to call the api
     var response = await http.get(
         '$openWeatherApiUrl?lat=${position.latitude}&lon=${position.longitude}&appid=$apiKey&units=metric');
 
     if (response.statusCode == 200) {
+      print(response.body);
       setState(() {
         weather = jsonDecode(response.body);
         isLoading = false;
