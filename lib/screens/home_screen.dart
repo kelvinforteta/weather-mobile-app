@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isError = false;
   bool isSearchingCity = false;
   Timer timer;
+  bool isNavigationIconTapped = false;
 
   @override
   void initState() {
@@ -67,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: isSearch ? searchBar() : Text('Today'),
             backgroundColor: Colors.transparent,
             elevation: 0.0,
-            leading: isSearch ? null : refreshWeatherIcon(),
+            leading: isSearch ? null : loaderNavigationIcon(),
             actions: <Widget>[
               isSearch ? Container() : searchIcon(),
             ],
@@ -155,47 +156,50 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          '3 Hour Forecast for 5 Days',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            '3 Hour Forecast for 5 Days',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700),
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: forecastWeather['cnt'],
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.only(right: 22.0),
-                              child: ForecastWidget(
-                                date: convertTimestampToDay(
-                                    forecastWeather['list'][index]['dt_txt']),
-                                temperature: forecastWeather['list'][index]
-                                    ['weather'][0]['id'],
-                                humidity: forecastWeather['list'][index]['main']
-                                    ['humidity'],
-                                degree: forecastWeather['list'][index]['main']
-                                        ['temp']
-                                    .toInt(),
-                              ),
-                            );
-                          },
+                        SizedBox(
+                          height: 10,
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: forecastWeather['cnt'],
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: EdgeInsets.only(right: 22.0),
+                                child: ForecastWidget(
+                                  date: convertTimestampToDay(
+                                      forecastWeather['list'][index]['dt_txt']),
+                                  temperature: forecastWeather['list'][index]
+                                      ['weather'][0]['id'],
+                                  humidity: forecastWeather['list'][index]
+                                      ['main']['humidity'],
+                                  degree: forecastWeather['list'][index]['main']
+                                          ['temp']
+                                      .toInt(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -278,6 +282,9 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.white,
         ),
         onPressed: () {
+          setState(() {
+            isNavigationIconTapped = true;
+          });
           // refresh the location api
           getWeatherUpdate();
         });
@@ -366,17 +373,29 @@ class _HomeScreenState extends State<HomeScreen> {
       List<Response> list = await Future.wait(urls.map((urlId) =>
           client.get('$weatherApiUrl/$urlId&appid=$apiKey&units=metric')));
 
+      print(list[0].statusCode);
+
       if (list[0].statusCode == 200 && list[1].statusCode == 200) {
         setState(() {
           currentWeather = jsonDecode(list[0].body);
           forecastWeather = jsonDecode(list[1].body);
           isLoading = false;
+          isNavigationIconTapped = false;
         });
       } else {
         setState(() {
           isError = true;
         });
       }
+    } catch (e) {
+      if (isNavigationIconTapped) {
+        Toast.show("Sorry, no internet connect found.", context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+      }
+      setState(() {
+        isError = true;
+        isNavigationIconTapped = false;
+      });
     } finally {
       client.close();
     }
@@ -406,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
           isSearchingCity = false;
           searchBarController.clear();
           Toast.show("City not found.", context,
-              duration: Toast.LENGTH_LONG, gravity: Toast.TOP);
+              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
           // isError = true;
         });
       } else {
@@ -417,6 +436,13 @@ class _HomeScreenState extends State<HomeScreen> {
           // isError = true;
         });
       }
+    } catch (e) {
+      setState(() {
+        isSearchingCity = false;
+        Toast.show("Sorry, no internet connect found.", context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+        // isError = true;
+      });
     } finally {
       client.close();
     }
@@ -457,6 +483,15 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
       );
+    }
+  }
+
+  loaderNavigationIcon() {
+    if (isNavigationIconTapped) {
+      return AwesomeLoader(
+          loaderType: AwesomeLoader.AwesomeLoader3, color: Colors.white);
+    } else {
+      return refreshWeatherIcon();
     }
   }
 

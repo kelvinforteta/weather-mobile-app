@@ -9,6 +9,7 @@ class WeatherApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Weather App',
+      color: Colors.white,
       home: HomeScreen(),
     );
   }
