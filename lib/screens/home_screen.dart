@@ -1,13 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:awesome_loader/awesome_loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:toast/toast.dart';
 import 'package:weather_app/components/card_widget.dart';
+import 'package:weather_app/components/forecast.dart';
 import 'package:weather_app/components/weather_background.dart';
+import 'package:weather_app/components/weather_emoji.dart';
 
 const apiKey = '533604a1f76fd0c5b9def2ffab56d1cd';
 const weatherApiUrl = 'https://api.openweathermap.org/data/2.5/';
@@ -19,18 +24,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isSearch = false;
-  String cityName;
+  String cityName = '';
   final searchBarController = TextEditingController();
   bool showClearIcon = false;
   var currentWeather;
   var forecastWeather;
   bool isLoading = true;
   bool isError = false;
+  bool isSearchingCity = false;
+  Timer timer;
 
   @override
   void initState() {
     super.initState();
     getWeatherUpdate();
+
+    // fetch the data every 1 hour
+    timer = Timer.periodic(
+        Duration(hours: 1), (Timer t) => getWeatherUpdateEveryHour());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
   }
 
   @override
@@ -79,8 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 10,
                     ),
                     Text(
+                      '${getWeatherEmoji(currentWeather['weather'][0]['id'])}',
+                      style: TextStyle(fontSize: 80),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
                       toBeginningOfSentenceCase(
-                          weather['current']['condition']['text']),
+                          currentWeather['weather'][0]['description']),
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,
@@ -90,18 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 5,
                     ),
                     Text(
-                      toBeginningOfSentenceCase(
-                          weather['current']['condition']['text']),
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                          fontStyle: FontStyle.italic),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      '${weather['current']['temp_c'].toInt()}°',
+                      '${currentWeather['main']['temp'].toInt()}°',
                       style: TextStyle(
                         color: Colors.white,
                         // fontWeight: FontWeight.bold,
@@ -122,19 +135,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       CardWidget(
                         icon: 'assets/images/wind.png',
-                        description: '${weather['current']['wind_mph']} mph',
+                        description: '${currentWeather['wind']['speed']} m/s',
                         label: 'Wind',
                       ),
                       CardWidget(
                         icon: 'assets/images/humidity.png',
                         description:
-                            '${weather['current']['humidity'].toInt()}%',
+                            '${currentWeather['main']['humidity'].toInt()}%',
                         label: 'Humidity',
                       ),
                       CardWidget(
                         icon: 'assets/images/pressure.png',
                         description:
-                            '${weather['current']['pressure_mb'].toInt()} mb',
+                            '${currentWeather['main']['pressure'].toInt()} hPa',
                         label: 'Pressure',
                       ),
                     ],
@@ -150,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Align(
                         alignment: Alignment.topLeft,
                         child: Text(
-                          '5 Day / 3 Hour Forecast',
+                          '3 Hour Forecast for 5 Days',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -163,24 +176,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: 15,
+                          itemCount: forecastWeather['cnt'],
                           itemBuilder: (context, index) {
                             return Padding(
-                                padding: EdgeInsets.only(right: 12.0),
-                                child: Text('hello'));
-                            /*ForecastWidget(
+                              padding: EdgeInsets.only(right: 22.0),
+                              child: ForecastWidget(
                                 date: convertTimestampToDay(
-                                    weather['list'][1]['dt_txt']),
-                                temperatureDay: weather['list'][1]['weather'][0]
-                                    ['id'],
-                                temperatureNight: weather['list'][1]['weather']
-                                    [0]['id'],
-                                degreeDay:
-                                    weather['list'][1]['main']['temp'].toInt(),
-                                degreeNight:
-                                    weather['list'][1]['main']['temp'].toInt(),
+                                    forecastWeather['list'][index]['dt_txt']),
+                                temperature: forecastWeather['list'][index]
+                                    ['weather'][0]['id'],
+                                humidity: forecastWeather['list'][index]['main']
+                                    ['humidity'],
+                                degree: forecastWeather['list'][index]['main']
+                                        ['temp']
+                                    .toInt(),
                               ),
-                            );*/
+                            );
                           },
                         ),
                       ),
@@ -286,57 +297,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
   TextField searchBar() {
     return TextField(
-        controller: searchBarController,
-        style: TextStyle(color: Colors.white),
-        autofocus: true,
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          fillColor: Colors.black.withOpacity(0.2),
-          filled: true,
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide.none,
-          ),
-          hintText: 'Enter City Name',
-          hintStyle: TextStyle(color: Colors.white),
-          prefixIcon: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                isSearch = false;
-                setState(() {});
-              }),
-          suffixIcon: showClearIcon
-              ? IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    searchBarController.clear();
-                    setState(() {
-                      showClearIcon = false;
-                    });
-                  })
-              : null,
+      controller: searchBarController,
+      style: TextStyle(color: Colors.white),
+      autofocus: true,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        fillColor: Colors.black.withOpacity(0.2),
+        filled: true,
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide.none,
         ),
-        onChanged: (value) {
-          cityName = value.toLowerCase().trim();
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide.none,
+        ),
+        hintText: 'Enter City Name',
+        hintStyle: TextStyle(color: Colors.white),
+        prefixIcon: loaderBackButton(),
+        suffixIcon: showClearIcon
+            ? IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  searchBarController.clear();
+                  setState(() {
+                    showClearIcon = false;
+                  });
+                })
+            : null,
+      ),
+      onSubmitted: (value) {
+        String cityName = value.toLowerCase().trim();
+        if (cityName.isNotEmpty) {
+          setState(() {
+            isSearchingCity = true;
+          });
+          getWeatherUpdateByCity(cityName);
+        }
+      },
+      onChanged: (value) {
+        cityName = value.toLowerCase().trim();
 
-          if (cityName.isNotEmpty) {
-            setState(() {
-              showClearIcon = true;
-            });
-          } else {
-            setState(() {
-              showClearIcon = false;
-            });
-          }
-        });
+        if (cityName.isNotEmpty) {
+          setState(() {
+            showClearIcon = true;
+          });
+        } else {
+          setState(() {
+            showClearIcon = false;
+          });
+        }
+      },
+    );
   }
 
   void getWeatherUpdate() async {
@@ -349,19 +362,63 @@ class _HomeScreenState extends State<HomeScreen> {
       'forecast?lat=${position.latitude}&lon=${position.longitude}',
     ]; //different ids
 
-    List<Response> list = await Future.wait(
-        urls.map((urlId) => client.get('$weatherApiUrl/$urlId&appid=$apiKey')));
+    try {
+      List<Response> list = await Future.wait(urls.map((urlId) =>
+          client.get('$weatherApiUrl/$urlId&appid=$apiKey&units=metric')));
 
-    if (list[0].statusCode == 200 && list[1].statusCode == 200) {
-      setState(() {
-        currentWeather = jsonDecode(list[0].body);
-        forecastWeather = jsonDecode(list[1].body);
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isError = true;
-      });
+      if (list[0].statusCode == 200 && list[1].statusCode == 200) {
+        setState(() {
+          currentWeather = jsonDecode(list[0].body);
+          forecastWeather = jsonDecode(list[1].body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isError = true;
+        });
+      }
+    } finally {
+      client.close();
+    }
+  }
+
+  void getWeatherUpdateByCity($cityName) async {
+    var client = new Client();
+    List<String> urls = [
+      'weather?q=$cityName',
+      'forecast?q=$cityName',
+    ]; //different ids
+
+    try {
+      List<Response> list = await Future.wait(urls.map((urlId) =>
+          client.get('$weatherApiUrl/$urlId&appid=$apiKey&units=metric')));
+
+      if (list[0].statusCode == 200 && list[1].statusCode == 200) {
+        setState(() {
+          currentWeather = jsonDecode(list[0].body);
+          forecastWeather = jsonDecode(list[1].body);
+          isLoading = false;
+          isSearch = false;
+          isSearchingCity = false;
+        });
+      } else if (list[0].statusCode == 404 && list[1].statusCode == 404) {
+        setState(() {
+          isSearchingCity = false;
+          searchBarController.clear();
+          Toast.show("City not found.", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.TOP);
+          // isError = true;
+        });
+      } else {
+        setState(() {
+          isSearchingCity = false;
+          Toast.show("Sorry, an error occurred, try again.", context,
+              duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+          // isError = true;
+        });
+      }
+    } finally {
+      client.close();
     }
   }
 
@@ -374,10 +431,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String convertTimestampToDay(String dateTime) {
-    print(dateTime);
     final DateTime datetime = DateTime.parse(dateTime);
     var formatter = DateFormat('E');
-    String formatted = formatter.format(datetime);
+    var formatter2 = DateFormat('j');
+    String formatted = formatter.format(datetime) +
+        ' (' +
+        formatter2.format(datetime).toLowerCase() +
+        ')';
     return formatted;
+  }
+
+  loaderBackButton() {
+    if (isSearchingCity) {
+      return AwesomeLoader(
+          loaderType: AwesomeLoader.AwesomeLoader3, color: Colors.white);
+    } else {
+      return IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          setState(() {
+            isSearch = false;
+          });
+        },
+      );
+    }
+  }
+
+  getWeatherUpdateEveryHour() {
+    if (cityName.isEmpty) {
+      getWeatherUpdate();
+    } else {
+      getWeatherUpdateByCity(cityName);
+    }
   }
 }

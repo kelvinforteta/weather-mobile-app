@@ -4,16 +4,14 @@ import 'weather_emoji.dart';
 
 class ForecastWidget extends StatelessWidget {
   final date;
-  final temperatureDay;
-  final temperatureNight;
-  final degreeDay;
-  final degreeNight;
+  final temperature;
+  final humidity;
+  final degree;
 
   ForecastWidget(
-      {@required this.temperatureDay,
-      @required this.temperatureNight,
-      @required this.degreeDay,
-      @required this.degreeNight,
+      {@required this.temperature,
+      @required this.humidity,
+      @required this.degree,
       @required this.date});
 
   @override
@@ -38,7 +36,7 @@ class ForecastWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Text(
-              '${getWeatherEmoji(temperatureDay)}',
+              '${getWeatherEmoji(temperature)}',
               style: TextStyle(
                 fontSize: 20.0,
               ),
@@ -47,7 +45,7 @@ class ForecastWidget extends StatelessWidget {
               width: 10.0,
             ),
             Text(
-              '${getWeatherEmoji(temperatureNight)}',
+              '🌡️',
               style: TextStyle(
                 fontSize: 20.0,
               ),
@@ -62,7 +60,7 @@ class ForecastWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Text(
-              '$degreeDay°',
+              '$degree°',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15.0,
@@ -72,7 +70,7 @@ class ForecastWidget extends StatelessWidget {
               width: 10.0,
             ),
             Text(
-              '$degreeNight°',
+              '$humidity%',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15.0,
