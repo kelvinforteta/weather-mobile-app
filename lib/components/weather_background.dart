@@ -9,15 +9,15 @@ class WeatherBackground extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.pink[700],
-            Colors.purple[900],
+            Color(0xFF28BFF0),
+            Color(0xFF6553ED),
           ],
-          begin: Alignment.topCenter,
+          begin: Alignment.topRight,
           end: Alignment.bottomCenter,
         ),
         /*image: DecorationImage(
           image: NetworkImage(
-              'https://cdn.pixabay.com/photo/2016/11/29/11/12/adult-1869119_960_720.jpg'),
+              'https://cdn.pixabay.com/photo/2019/08/21/09/29/norway-4420668_960_720.jpg'),
           fit: BoxFit.cover,
         ),*/
       ),
