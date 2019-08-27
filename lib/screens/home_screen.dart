@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 5,
                     ),
                     Text(
-                      '${currentWeather['main']['temp'].toInt()}°',
+                      '${currentWeather['main']['temp'].round()}°',
                       style: TextStyle(
                         color: Colors.white,
                         // fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       CardWidget(
                         icon: 'assets/images/humidity.png',
                         description:
-                            '${currentWeather['main']['humidity'].toInt()}%',
+                            '${currentWeather['main']['humidity'].round()}%',
                         label: 'Humidity',
                       ),
                       CardWidget(
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ['main']['humidity'],
                                   degree: forecastWeather['list'][index]['main']
                                           ['temp']
-                                      .toInt(),
+                                      .round(),
                                 ),
                               );
                             },
